@@ -1,0 +1,92 @@
+; Input Audit - Godot 4 input action audit addon
+; Engine configuration file.
+
+config_version=5
+
+[application]
+
+config/name="Input Audit"
+; The buyer opens the project and presses play. This is the screen they land
+; on, and it reports what the input map below is really wired to.
+run/main_scene="res://demo/main.tscn"
+config/features=PackedStringArray("4.4", "Forward Plus")
+
+[display]
+
+window/size/viewport_width=1152
+window/size/viewport_height=648
+
+[editor_plugins]
+
+; Saved enabled, so plugin.gd runs the moment the editor opens the project.
+; If enabling it were going to break, it breaks in the startup log where the
+; test harness can see it.
+enabled=PackedStringArray("res://addons/input_audit/plugin.cfg")
+
+[input]
+
+; Every fault this addon reports is planted here on purpose. The demo scene
+; and demo/main.gd are wired to match, so a buyer can see the finding and the
+; line that caused it side by side.
+
+; Clean: a key and a gamepad button.
+jump={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"device":-1,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":32,"unicode":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"device":-1,"button_index":0,"pressed":false,"script":null)
+]
+}
+; Shares Space with jump: one press fires both.
+fire={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"device":-1,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":32,"unicode":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"device":-1,"button_index":2,"pressed":false,"script":null)
+]
+}
+; Keyboard only: a controller cannot walk left.
+move_left={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"device":-1,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":65,"unicode":0,"echo":false,"script":null)
+]
+}
+; Clean: a key and a stick.
+move_right={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"device":-1,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":68,"unicode":0,"echo":false,"script":null)
+, Object(InputEventJoypadMotion,"device":-1,"axis":0,"axis_value":1.0,"script":null)
+]
+}
+; Gamepad only: a keyboard cannot crouch.
+crouch={
+"deadzone": 0.2,
+"events": [Object(InputEventJoypadButton,"device":-1,"button_index":1,"pressed":false,"script":null)
+]
+}
+; Mouse only: neither a key nor a gamepad button can do it.
+interact={
+"deadzone": 0.2,
+"events": [Object(InputEventMouseButton,"device":-1,"button_index":1,"pressed":false,"script":null)
+]
+}
+; In the map, bound to nothing at all.
+pause={
+"deadzone": 0.2,
+"events": []
+}
+; Bound, and named nowhere in the project.
+open_map={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"device":-1,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":77,"unicode":0,"echo":false,"script":null)
+, Object(InputEventJoypadButton,"device":-1,"button_index":3,"pressed":false,"script":null)
+]
+}
+; A stick with no deadzone: it reads as held for ever on a pad with drift.
+aim={
+"deadzone": 0.0,
+"events": [Object(InputEventJoypadMotion,"device":-1,"axis":2,"axis_value":1.0,"script":null)
+]
+}
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(0.16, 0.17, 0.2, 1)
