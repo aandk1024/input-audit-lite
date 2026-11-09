@@ -23,6 +23,7 @@ var _last_opts: Object = null
 func _ready() -> void:
     $CheckAll.pressed.connect(_on_check_all)
     _say("Ready. \"Check the project\" reads the input map and every .gd, .tscn and .tres file that names an action.")
+    _lite_connect()
     _lite_note()
     $ExportRow.queue_free()
 
@@ -102,6 +103,45 @@ func _run() -> void:
         _say("NOT a complete check: %d problem(s) above mean part of the project was not read." % problems.size())
     _lite_note()
 
-## Lite: say once, in the dock itself, what the full version adds and where it is.
+var _lite_press := Vector2.ZERO
+var _lite_dragged := false
+
+
+func _lite_connect() -> void:
+    if is_instance_valid(_log):
+        if not _log.meta_clicked.is_connected(_on_lite_meta):
+            _log.meta_clicked.connect(_on_lite_meta)
+        if not _log.gui_input.is_connected(_on_lite_gui):
+            _log.gui_input.connect(_on_lite_gui)
+
+
+# Godot 4.6+ still sends meta_clicked after a drag that began on the link.
+func _on_lite_gui(event: InputEvent) -> void:
+    if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+        if event.pressed:
+            _lite_press = event.position
+            _lite_dragged = false
+        elif event.position.distance_to(_lite_press) > 4.0:
+            _lite_dragged = true
+
+
 func _lite_note() -> void:
-    _say("Input Audit Lite. The full version adds: Markdown and JSON reports (pinned schema for a build server). https://theidlehands.itch.io/input-audit")
+    if is_instance_valid(_log):
+        var lite_shown: String = _log.get_parsed_text()
+        if lite_shown.count("Input Audit Lite. Paid full version adds: Markdown and JSON reports. https://theidlehands.itch.io/input-audit") >= 4:
+            _log.remove_paragraph(_log.get_character_paragraph(lite_shown.find("Input Audit Lite. Paid full version adds: Markdown and JSON reports. https://theidlehands.itch.io/input-audit") + 10))
+        _log.append_text("Input Audit Lite. Paid full version adds: Markdown and JSON reports. [url=https://theidlehands.itch.io/input-audit]https://theidlehands.itch.io/input-audit[/url]\n")
+
+
+func _on_lite_meta(meta: Variant) -> void:
+    if not (meta is String):
+        return
+    if meta != "https://theidlehands.itch.io/input-audit":
+        return
+    if _lite_dragged:
+        return
+    if is_instance_valid(_log) and not _log.get_selected_text().is_empty():
+        return
+    var error := OS.shell_open("https://theidlehands.itch.io/input-audit")
+    if error != OK and is_instance_valid(_log):
+        _say("Could not open the browser. Copy this URL: https://theidlehands.itch.io/input-audit")
